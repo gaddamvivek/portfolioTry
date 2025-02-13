@@ -7,14 +7,14 @@
   */
 
   // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'pasalakranthi0910@gmail.com';
-
+ /* 
   if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
     include( $php_email_form );
   } else {
     die( 'Unable to load the "PHP Email Form" Library!');
   }
-
+  
+  $receiving_email_address = 'pasalakranthi0910@gmail.com';
   $contact = new PHP_Email_Form;
   $contact->ajax = true;
   
@@ -32,10 +32,40 @@
     'port' => '587'
   );
   */
-
+/*
   $contact->add_message( $_POST['name'], 'From');
   $contact->add_message( $_POST['email'], 'Email');
   $contact->add_message( $_POST['message'], 'Message', 10);
 
   echo $contact->send();
+?>  */
+
+<?php
+// Get POST data from the form
+$name = $_POST['name'];
+$email = $_POST['email'];
+$subject = $_POST['subject'];
+$message = $_POST['message'];
+
+// Configure the receiving email address and subject line
+$to = 'pasalakranthi0910@gmail.com';
+$email_subject = "New Message from: $name via Contact Form";
+$email_body = "You have received a new message.\n\n" .
+              "Here are the details:\n" .
+              "Name: $name\n" .
+              "Email: $email\n" .
+              "Subject: $subject\n" .
+              "Message:\n$message";
+
+// Check for proper email headers
+$headers = "From: $email\n";
+$headers .= "Reply-To: $email";
+
+// Send the email
+if (mail($to, $email_subject, $email_body, $headers)) {
+    echo "OK"; // Response for AJAX success
+} else {
+    echo "Error: Unable to send email.";
+}
 ?>
+
