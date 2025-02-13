@@ -41,31 +41,50 @@
 ?>  */
 
 <?php
-// Get POST data from the form
-$name = $_POST['name'];
-$email = $_POST['email'];
-$subject = $_POST['subject'];
-$message = $_POST['message'];
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-// Configure the receiving email address and subject line
-$to = 'pasalakranthi0910@gmail.com';
-$email_subject = "New Message from: $name via Contact Form";
-$email_body = "You have received a new message.\n\n" .
-              "Here are the details:\n" .
-              "Name: $name\n" .
-              "Email: $email\n" .
-              "Subject: $subject\n" .
-              "Message:\n$message";
+require 'src/PHPMailer.php';
+require 'src/SMTP.php';
+require 'src/Exception.php';
 
-// Check for proper email headers
-$headers = "From: $email\n";
-$headers .= "Reply-To: $email";
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $name = htmlspecialchars($_POST['name']);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $subject = htmlspecialchars($_POST['subject']);
+    $message = htmlspecialchars($_POST['message']);
 
-// Send the email
-if (mail($to, $email_subject, $email_body, $headers)) {
-    echo "OK"; // Response for AJAX success
+    $mail = new PHPMailer(true);
+
+    try {
+        // SMTP Configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com'; // SMTP server
+        $mail->SMTPAuth = true;
+        $mail->Username = 'gaddamvivek9@gmail.com'; // Your Gmail
+        $mail->Password = 'uxtg rave vrsb qgvy'; // Use an App Password (not your Gmail password)
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // Email Headers
+        $mail->setFrom($email, $name);
+        $mail->addAddress('gaddamvivek9@gmail.com'); // Recipient email
+        $mail->Subject = "New Message from: $name";
+        $mail->Body = "Name: $name\nEmail: $email\nSubject: $subject\nMessage:\n$message";
+
+        // Send Email
+        if ($mail->send()) {
+            echo "OK";
+        } else {
+            echo "Error: " . $mail->ErrorInfo;
+        }
+    } catch (Exception $e) {
+        echo "Mailer Error: " . $mail->ErrorInfo;
+    }
 } else {
-    echo "Error: Unable to send email.";
+    http_response_code(405);
+    echo "Method Not Allowed";
 }
 ?>
+
 
